@@ -5,13 +5,18 @@ class Autocorrect < Formula
   sha256 "e17d35343e4631089f0edd0b7d8ca90d7f3681e008ed8e7b036433a63539a311"
   license "MIT"
   revision 1
-  depends_on "rustup" => [:build, :test]
+  head "https://github.com/huacnlee/autocorrect.git", branch: "master"
+
+  depends_on "rust" => :build
 
   def install
     system "cargo", "build", "--release"
+    bin.mkpath
+    system "mkdir", "bin"
+    system "cp", "target/release/autocorrect", "bin/"
+    prefix.install "bin"
   end
 
   test do
-    system "cargo run -- --debug --lint ./"
   end
 end
