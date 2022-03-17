@@ -7,13 +7,16 @@ class Autocorrect < Formula
   revision 1
   head "https://github.com/huacnlee/autocorrect.git", branch: "master"
 
-  depends_on "rust" => :build
+  depends_on "rustup-init" => :build
 
   def install
-    system "cargo", "build", "--release"
-    bin.mkpath
-    system "mkdir", "bin"
-    system "cp", "target/release/autocorrect", "bin/"
+    system "#{Formula["rustup-init"].bin}/rustup-init", "-qy", "--no-modify-path"
+    ENV.prepend_path "PATH", HOMEBREW_CACHE/"cargo_cache/bin"
+    nightly_version = "nightly-2022-03-17"
+    components = %w[rust-src rustc-dev llvm-tools-preview]
+    system "rustup", "toolchain", "install", nightly_version
+    system "rustup", "component", "add", *components, "--toolchain", nightly_version
+    system "cargo", "build", "--all-features", "--release", "--out-dir=bin/", "-Z", "unstable-options"
     prefix.install "bin"
   end
 
